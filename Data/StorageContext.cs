@@ -8,10 +8,19 @@ namespace seminar1._1.Data
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductGroup> ProductGroups { get; set; }
         public virtual DbSet<Storage> Storages { get; set; }
+        public IEnumerable<object> Products { get; internal set; }
+
+        private readonly string _dbConnectionString;
+
+        public StorageContext() { }
+        public StorageContext(string connection)
+        {
+            _dbConnectionString = connection;
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source =. \\DESKTOP-6B2PDIN; Initial Catalog = Products; Trusted_Connection=True; TrustServerCertificate=True").UseLazyLoadingProxies().LogTo(Console.WriteLine);
+            optionsBuilder.UseSqlServer(_dbConnectionString).UseLazyLoadingProxies().LogTo(Console.WriteLine);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
