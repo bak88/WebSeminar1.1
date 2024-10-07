@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using seminar1._1.Abstraction;
 using seminar1._1.Data;
+using seminar1._1.Dto;
 using seminar1._1.Models;
+using System.Text;
 
 namespace seminar1._1.Controllers
 {
@@ -8,29 +12,34 @@ namespace seminar1._1.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        [HttpPost]
-        public ActionResult<int> AddProduct(string name, string description, double price)
-        {
-            using (StorageContext storageContext = new StorageContext())
-            {
-                if (storageContext.Products.Any(p => p.Name == name))
-                    return StatusCode(409);
+        private readonly IProductRepository _productRepository;
+        private object memoryChache;
+        private readonly StorageContext _storageContext;
 
-                var product = new Product() { Name = name, Description = description, Price = price };
-                storageContext.Products.Add(product);
-                storageContext.SaveChanges();
-                return Ok(product.Id);
+        public ProductController(IProductRepository productRepository)
+        {
+            _productRepository = productRepository;
+        }
+        [HttpPost]
+        public ActionResult<int> AddProduct(ProductDto productDto)
+        {
+            try
+            {
+                var id = _productRepository.AddProduct(productDto);
+                return Ok(id);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(409);
+            }
+
+
+
         }
         [HttpGet("get_all_product")]
         public ActionResult<IEnumerable<Product>> GetAllProducts(string name, string description, double price)
         {
-            IEnumerable<Product> list;
-            using (StorageContext storageContext = new StorageContext())
-            {
-                list = storageContext.Products.ToList();
-                return Ok(list);
-            }
+            return Ok(_productRepository.GetAllProducts());
         }
 
         [HttpDelete("groups/{id}")]
@@ -77,5 +86,35 @@ namespace seminar1._1.Controllers
                 return NoContent();
             }
         }
+
+        private string GetCsv(IEnumerable<ProductGroup> products)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var product in products)
+            {
+                sb.AppendLine(product.Id + product.Name + ";" + product.Description + ";" + "\n");
+            }
+            return sb.ToString();
+        }
+
+        public ActionResult<string> GetProductsCsvUrl()
+        {
+            var content = "";
+
+
+            using (_storageContext)
+            {
+                var products = _storageContext.Procucts.Select(b => new ProductGroup { Id = b.Id, Description = b.Description, Name = b.Name }).ToList();
+
+                content = GetCsv(products);
+            }
+
+            string? fileName = null;
+            fileName = "products" + DateTime.Now.ToBinary().ToString() + ".csv";
+            System.IO.File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles", fileName), content);
+
+            return "https://" + Request.Host.ToString() + "/static/" + fileName;
+        }
+
     }
 }
