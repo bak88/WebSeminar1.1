@@ -86,8 +86,8 @@ namespace seminar1._1.Controllers
                 return NoContent();
             }
         }
-
-        private string GetCsv(IEnumerable<ProductGroup> products)
+        [HttpGet("get_csv")]
+        public string GetCsv(IEnumerable<ProductGroup> products)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var product in products)
@@ -96,15 +96,14 @@ namespace seminar1._1.Controllers
             }
             return sb.ToString();
         }
-
+        [HttpGet("get_products_csv_url")]
         public ActionResult<string> GetProductsCsvUrl()
         {
             var content = "";
 
-
             using (_storageContext)
             {
-                var products = _storageContext.Procucts.Select(b => new ProductGroup { Id = b.Id, Description = b.Description, Name = b.Name }).ToList();
+                var products = _storageContext.Products.Select(b => new ProductGroup { Id = b.Id, Description = b.Description, Name = b.Name }).ToList();
 
                 content = GetCsv(products);
             }
