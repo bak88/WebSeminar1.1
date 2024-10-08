@@ -7,7 +7,12 @@ namespace seminar1._1.Data
     {
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductGroup> ProductGroups { get; set; }
+<<<<<<< HEAD
         public virtual DbSet<Storage> Storages { get; set; }        
+=======
+        public virtual DbSet<Storage> Storages { get; set; }
+        public IEnumerable<object> Products { get; internal set; }
+>>>>>>> 2edb773026ec081f8658762d8738c5dfa94028d7
 
         private readonly string _dbConnectionString;
 
