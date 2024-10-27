@@ -90,6 +90,7 @@ namespace seminar1._1.Controllers
         public string GetCsv(IEnumerable<ProductGroup> products)
         {
             StringBuilder sb = new StringBuilder();
+
             foreach (var product in products)
             {
                 sb.AppendLine(product.Id + product.Name + ";" + product.Description + ";" + "\n");

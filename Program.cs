@@ -22,6 +22,7 @@ namespace seminar1._1
             builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(typeof(MapperProfile));
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
             builder.Host.ConfigureContainer<ContainerBuilder>(container =>
             {
                 container.RegisterType<ProductRepository>().As<IProductRepository>();
